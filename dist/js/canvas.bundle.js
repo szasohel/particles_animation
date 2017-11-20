@@ -86,7 +86,7 @@ var mouse = {
     y: innerHeight / 2
 };
 
-var colors = ['#2185C5', '#7ECEFD', '#FFF6E5', '#FF7F66'];
+var colors = ['#F6F107', '#F63807', '#F6AB07', '#7DF607', '#07F6E6'];
 
 // Event Listeners
 addEventListener('mousemove', function (event) {
@@ -127,19 +127,22 @@ function Particle(x, y, radius, color) {
     this.color = color;
     this.radians = Math.random() * Math.PI * 2;
     this.velocity = 0.05;
-
+    this.distanceFromCenter = randomIntFromRange(50, 120);
     this.update = function () {
+        var lastPoint = { x: _this.x, y: _this.y };
         _this.radians += _this.velocity;
-        _this.x = x + Math.cos(_this.radians) * 100;
-        _this.y = y + Math.sin(_this.radians) * 100;
-        _this.draw();
+        _this.x = x + Math.cos(_this.radians) * _this.distanceFromCenter;
+        _this.y = y + Math.sin(_this.radians) * _this.distanceFromCenter;
+        _this.draw(lastPoint);
     };
 
-    this.draw = function () {
+    this.draw = function (lastPoint) {
         c.beginPath();
-        c.arc(_this.x, _this.y, _this.radius, 0, Math.PI * 2, false);
-        c.fillStyle = _this.color;
-        c.fill();
+        c.strokeStyle = _this.color;
+        c.lineWidth = _this.radius;
+        c.moveTo(lastPoint.x, lastPoint.y);
+        c.lineTo(_this.x, _this.y);
+        c.stroke();
         c.closePath();
     };
 }
@@ -150,14 +153,17 @@ function init() {
     particles = [];
 
     for (var i = 0; i < 50; i++) {
-        particles.push(new Particle(canvas.width / 2, canvas.height / 2, 5, 'blue'));
+        var radius = Math.random() * 2 + 1;
+        particles.push(new Particle(canvas.width / 2, canvas.height / 2, radius, randomColor(colors)));
     }
 }
 
 // Animation Loop
 function animate() {
     requestAnimationFrame(animate);
-    c.clearRect(0, 0, canvas.width, canvas.height);
+    c.fillStyle = 'rgba(255,255,255,0.05)';
+    c.fillRect(0, 0, canvas.width, canvas.height);
+    // c.clearRect(0, 0, canvas.width, canvas.height)
     particles.forEach(function (particle) {
         particle.update();
     });
